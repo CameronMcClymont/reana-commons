@@ -2,7 +2,7 @@
   "info": {
     "description": "Submit workflows to be run on REANA Cloud",
     "title": "REANA Server",
-    "version": "0.95.0a2"
+    "version": "0.95.0a3"
   },
   "paths": {
     "/account/settings/linkedaccounts/": {},
@@ -1030,6 +1030,209 @@
           }
         },
         "summary": "Ping the server (healthcheck)"
+      }
+    },
+    "/api/quota": {
+      "get": {
+        "description": "This endpoint gets resource quota limits for a given user.",
+        "operationId": "list_quota_usage",
+        "parameters": [
+          {
+            "description": "REANA access token.",
+            "in": "query",
+            "name": "access_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Get the quota limit by user ID (mutually exclusive with `email` and `user_access_token`)",
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Get the quota limit by user email (mutually exclusive with `user_id` and `user_access_token`)",
+            "in": "query",
+            "name": "email",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Get the quota limit by user access token (mutually exclusive with `user_id` and `email`)",
+            "in": "query",
+            "name": "user_access_token",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "The type of resource",
+            "in": "query",
+            "name": "resource_type",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Request succeeded. Raw resource quota limit is returned.",
+            "examples": {
+              "application/json": {
+                "data": 1000000000,
+                "message": "",
+                "status": "200"
+              }
+            },
+            "schema": {
+              "properties": {
+                "data": {
+                  "type": "number"
+                },
+                "message": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Request failed. The incoming data specification seems malformed.",
+            "examples": {
+              "application/json": {
+                "message": "No user specified."
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "Request failed. Not found.",
+            "examples": {
+              "application/json": {
+                "message": "Quota functionality is not enabled."
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Internal server error."
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Get resource quota limits."
+      },
+      "post": {
+        "description": "This endpoint sets resource quota limits for a given set of users.",
+        "operationId": "set_quota_limit",
+        "parameters": [
+          {
+            "description": "REANA access token.",
+            "in": "query",
+            "name": "access_token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Data required to set quota limits.",
+            "in": "body",
+            "name": "data",
+            "required": true,
+            "schema": {
+              "additionalProperties": {
+                "description": "Quota limit definition.",
+                "properties": {
+                  "emails": {
+                    "description": "Emails of the target users (mutually exclusive with `user_ids`)",
+                    "type": "string"
+                  },
+                  "limit": {
+                    "description": "Raw quota limit to set",
+                    "type": "integer"
+                  },
+                  "resource_type": {
+                    "description": "Resource type to set",
+                    "type": "string"
+                  },
+                  "user_ids": {
+                    "description": "IDs of the target users (mutually exclusive with `emails`)",
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Resource quotas successfully set.",
+            "examples": {
+              "application/json": {
+                "message": "Quota limit {limit} for '{resource_type} ({resource_name})' successfully set to user(s) {user_ids}."
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Request failed. Internal server error.",
+            "examples": {
+              "application/json": {
+                "message": "Quota could not be set: {error}"
+              }
+            },
+            "schema": {
+              "properties": {
+                "message": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Set resource quota limits."
       }
     },
     "/api/secrets": {
