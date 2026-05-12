@@ -10,7 +10,7 @@
 
 from __future__ import absolute_import, print_function
 
-from unittest.mock import Mock
+from mock import Mock
 
 from reana_commons.api_client import BaseAPIClient
 
